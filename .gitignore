@@ -1,0 +1,29 @@
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# Java / Maven / Gradle
+target/
+build/
+.gradle/
+out/
+*.class
+
+# Node / React
+node_modules/
+dist/
+
+# Python
+__pycache__/
+.venv/
+*.pyc
+
+# Secrets
+.env
+.env.*
+!.env.example
+
+# OS
+Thumbs.db
+.DS_Store
