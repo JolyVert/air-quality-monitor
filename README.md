@@ -38,6 +38,17 @@ cp .env.example .env    # fill in passwords and API keys
 docker compose up -d
 ```
 
+API check scripts (Python):
+
+```
+python -m venv .venv
+.venv\Scripts\pip install -r scripts/requirements.txt
+cd scripts
+..\.venv\Scripts\python check_sensor_community.py
+```
+
+Other scripts: `check_gios.py`, `check_airly.py`, `check_purpleair.py`. Raw responses are saved to `scripts/data/`.
+
 ## Documentation
 
 - [Specification](docs/specyfikacja.md): requirements, architecture, algorithm, work plan.

@@ -45,6 +45,13 @@ Szczegóły techniczne zebrane podczas przygotowania prezentacji. **Przed implem
 - **Airly:** klucz API, dzienny limit zapytań na darmowym planie. Dokumentacja: developer.airly.org. Według NCBR ponad 2800 czujników w Polsce.
 - **PurpleAir:** klucz API, zapytania rozliczane w punktach. Dokumentacja: api.purpleair.com.
 
+Sprawdzone skryptami z `scripts/` (30.10.2026, Wrocław):
+
+- **GIOŚ:** nowe API `api.gios.gov.pl/pjp-api/v1/rest`, nazwy pól po polsku (np. „Identyfikator stacji”, „Wartość”), czas lokalny. 5 stacji, ale bieżące dane PM ma tylko część stanowisk: PM10 na Korzeniowskiego i Orzechowej oraz PM2,5 na Na Grobli to stanowiska manualne (wyniki po 4–8 tygodniach), Bartnicza nie mierzy PM. Na Wiśniowej ostatnie godziny miały puste wartości. Wskaźnik trzeba wybierać po dokładnym kodzie `PM10` / `PM2.5`.
+- **Sensor.community:** `data.sensor.community/airrohr/v1/filter/area=lat,lon,km`, w promieniu 10 km 45 czujników PM (głównie SDS011). P1 = PM10, P2 = PM2,5, czas w UTC. W odpowiedzi są też czujniki temperatury bez PM.
+- **Airly:** w promieniu 10 km 16 instalacji. Limit darmowego klucza: 100 zapytań dziennie (nagłówek `X-RateLimit-Remaining-day`).
+- **PurpleAir:** klucz działa, ale we Wrocławiu i okolicy jest tylko 1 czujnik i jest on wewnętrzny (indoor).
+
 Nowe źródło dodaje się przez adapter, bez zmian w reszcie systemu.
 
 ## 4. Wymagania funkcjonalne
@@ -145,5 +152,7 @@ Strategia: najpierw działający szkielet od źródeł do mapy, potem udoskonala
 - Jak liczyć tło miejskie: mediana czujników w promieniu kilku km czy najbliższa stacja GIOŚ (propozycja, nie decyzja).
 - Długość okna, próg Z-score, metryki oceny detekcji (np. precision/recall na anomaliach syntetycznych).
 - Cele liczbowe wydajności (czas ładowania mapy, czas zapytań).
-- Aktualne warunki API Airly (dzienny limit) i PurpleAir (koszt punktów).
+- PurpleAir: we Wrocławiu praktycznie brak czujników (1, wewnętrzny). Zostawić jako czwarte źródło, rozszerzyć obszar czy zrezygnować?
+- Airly: 100 zapytań dziennie przy 16 instalacjach, jak często pobierać dane.
+- GIOŚ: tylko kilka stanowisk PM z bieżącymi danymi, co wpływa na pomysł „tło = najbliższa stacja GIOŚ”.
 - Zakres pracy do uzgodnienia z promotorem.

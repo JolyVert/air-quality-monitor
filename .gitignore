@@ -18,6 +18,7 @@ dist/
 __pycache__/
 .venv/
 *.pyc
+scripts/data/
 
 # Secrets
 .env
