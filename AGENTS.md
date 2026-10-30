@@ -42,5 +42,6 @@ W skrócie: aplikacja webowa, która pobiera pomiary PM2,5 i PM10 z czterech źr
 
 - Użytkownik pisze po rosyjsku albo po polsku. Odpowiadaj w języku jego wiadomości. Dokumentacja projektu w `docs/` i teksty do pracy są po polsku.
 - Komunikaty commitów i `README.md` piszemy **po angielsku**.
+- **Nie rób commitów ani pushy bez wyraźnej zgody użytkownika.** Przygotuj zmiany, pokaż je i zapytaj. Dotyczy też `git commit --amend`, rebase i force push.
 - Klucze API (Airly, PurpleAir) nigdy w kodzie ani w repozytorium. Trzymaj je w zmiennych środowiskowych lub w pliku `.env` (jest w `.gitignore`).
 - Gdy zmieniasz zakres, źródła danych albo algorytm, zaktualizuj `docs/specyfikacja.md`, żeby dokumentacja zgadzała się z kodem i z prezentacją.

@@ -20,6 +20,24 @@ Engineering thesis · Anton Shkumat · supervisor: dr Michał Piórek
 | Frontend | React, Leaflet.js, Chart.js |
 | Tooling | Docker, Python (test scripts and data validation) |
 
+## Project structure
+
+| Path | Contents |
+|---|---|
+| `backend/` | Spring Boot application |
+| `frontend/` | React application |
+| `scripts/` | Python test and data validation scripts |
+| `docs/` | Specification and background |
+| `docker-compose.yml` | Local environment (PostgreSQL + TimescaleDB) |
+| `.env.example` | Template for environment variables |
+
+## Getting started
+
+```
+cp .env.example .env    # fill in passwords and API keys
+docker compose up -d
+```
+
 ## Documentation
 
 - [Specification](docs/specyfikacja.md): requirements, architecture, algorithm, work plan.
