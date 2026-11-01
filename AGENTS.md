@@ -20,7 +20,8 @@ W skrócie: aplikacja webowa, która pobiera pomiary PM2,5 i PM10 z czterech źr
 
 - Cztery **równorzędne** źródła danych od początku: GIOŚ, Sensor.community, Airly, PurpleAir. Każde podłączone przez osobny adapter do wspólnego modelu.
 - Backend: Java 21 + Spring Boot 4.1 (Spring Web, Spring Data JPA), budowanie Maven (Maven Wrapper `mvnw`). Pobieranie danych asynchroniczne, z ponowieniami i obsługą limitów API.
-- Baza: PostgreSQL + TimescaleDB (szeregi czasowe).
+- Lombok: w encjach JPA tylko `@Getter`, `@Setter` na polach, które mogą się zmieniać, i `@NoArgsConstructor(access = PROTECTED)`. **Bez `@Data`** i bez `@EqualsAndHashCode` na encjach.
+- Baza: PostgreSQL + TimescaleDB (szeregi czasowe), schemat przez migracje Flyway.
 - Frontend: React + Leaflet.js (mapa) + Chart.js (wykresy).
 - Uruchamianie: Docker (docker compose). Python do skryptów testowych i walidacji danych.
 - Detekcja anomalii: średnia ruchoma i odchylenie standardowe w oknie czasowym → Z-score czujnika → porównanie z sąsiadami i tłem miejskim. Anomalia lokalna = wysoki Z-score przy braku wzrostu w tle. Progi i długość okna dobierane eksperymentalnie.

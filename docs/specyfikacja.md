@@ -102,6 +102,24 @@ Kluczowe decyzje projektowe:
 - całość uruchamiana w kontenerach Docker;
 - backend: Java 21, Spring Boot 4.1, Maven.
 
+### Model danych
+
+Schemat tworzą migracje Flyway (`backend/src/main/resources/db/migration`). Czas zawsze w UTC (`timestamptz`).
+
+- **`sensor`**: czujnik z dowolnego źródła. Pola: `source` (`GIOS`, `SENSOR_COMMUNITY`, `AIRLY`, `PURPLEAIR`), `external_id` (id w API źródła), `name`, `latitude`, `longitude`, `sensor_type`, `indoor`, `last_seen_at`. Para `source` + `external_id` jest unikalna.
+- **`measurement`**: hypertable TimescaleDB po `measured_at`. Pola: `sensor_id`, `measured_at`, `pm25`, `pm10` (mogą być puste), `averaging_minutes`, `valid`, `fetched_at`. Klucz główny (`sensor_id`, `measured_at`), więc ponowne pobranie tego samego pomiaru nie tworzy duplikatu.
+
+Mapowanie źródeł:
+
+| Źródło | Czujnik (`external_id`) | Uśrednianie | Uwagi |
+|---|---|---|---|
+| GIOŚ | id stacji | 60 min | PM10 i PM2,5 to osobne stanowiska, łączone w jeden wiersz; czas lokalny → UTC |
+| Sensor.community | `sensor.id` | 5 min | P1 = PM10, P2 = PM2,5 |
+| Airly | id instalacji | 60 min | średnia krocząca, czas zaokrąglany do pełnej godziny |
+| PurpleAir | `sensor_index` | ok. 2 min | `pm2.5_atm`, `pm10.0_atm`; czas z Unix timestamp |
+
+Błędne odczyty nie są usuwane, tylko oznaczane `valid = false`, żeby dało się policzyć, ile danych odrzuciła walidacja.
+
 ## 7. Algorytm detekcji lokalnych anomalii
 
 Idea: dla każdego czujnika sprawdzamy, czy pokazuje teraz coś nietypowego w porównaniu z tym, co zwykle pokazuje, i czy jego sąsiedzi pokazują to samo.
