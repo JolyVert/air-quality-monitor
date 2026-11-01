@@ -99,7 +99,8 @@ Kluczowe decyzje projektowe:
 
 - asynchroniczne pobieranie, odporne na awarie i limity API;
 - jeden spójny model danych dla wszystkich źródeł;
-- całość uruchamiana w kontenerach Docker.
+- całość uruchamiana w kontenerach Docker;
+- backend: Java 21, Spring Boot 4.1, Maven.
 
 ## 7. Algorytm detekcji lokalnych anomalii
 
@@ -148,7 +149,6 @@ Strategia: najpierw działający szkielet od źródeł do mapy, potem udoskonala
 
 ## 10. Otwarte kwestie
 
-- Maven czy Gradle; wersja Javy (zainstalowana 22, Spring Boot 3 wymaga ≥ 17).
 - Jak liczyć tło miejskie: mediana czujników w promieniu kilku km czy najbliższa stacja GIOŚ (propozycja, nie decyzja).
 - Długość okna, próg Z-score, metryki oceny detekcji (np. precision/recall na anomaliach syntetycznych).
 - Cele liczbowe wydajności (czas ładowania mapy, czas zapytań).

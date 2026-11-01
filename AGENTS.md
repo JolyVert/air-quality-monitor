@@ -19,7 +19,7 @@ W skrócie: aplikacja webowa, która pobiera pomiary PM2,5 i PM10 z czterech źr
 ## Najważniejsze decyzje (już podjęte)
 
 - Cztery **równorzędne** źródła danych od początku: GIOŚ, Sensor.community, Airly, PurpleAir. Każde podłączone przez osobny adapter do wspólnego modelu.
-- Backend: Java + Spring Boot (Spring Web, Spring Data JPA). Pobieranie danych asynchroniczne, z ponowieniami i obsługą limitów API.
+- Backend: Java 21 + Spring Boot 4.1 (Spring Web, Spring Data JPA), budowanie Maven (Maven Wrapper `mvnw`). Pobieranie danych asynchroniczne, z ponowieniami i obsługą limitów API.
 - Baza: PostgreSQL + TimescaleDB (szeregi czasowe).
 - Frontend: React + Leaflet.js (mapa) + Chart.js (wykresy).
 - Uruchamianie: Docker (docker compose). Python do skryptów testowych i walidacji danych.
@@ -27,14 +27,13 @@ W skrócie: aplikacja webowa, która pobiera pomiary PM2,5 i PM10 z czterech źr
 
 ## Jeszcze nie ustalone
 
-- Narzędzie budowania backendu (Maven czy Gradle) i dokładna wersja Javy (zainstalowana jest Java 22; Spring Boot 3 wymaga co najmniej 17).
 - Sposób liczenia „tła miejskiego” (np. mediana czujników w promieniu kilku km albo najbliższa stacja GIOŚ).
 - Długość okna, próg Z-score, metryki oceny detekcji.
 - Pełna lista w `docs/specyfikacja.md`, sekcja „Otwarte kwestie”.
 
 ## Środowisko (Windows 10)
 
-- Zainstalowane: Git, Java 22, Docker 29, Python 3.14. **Brak** Node.js (potrzebny do frontendu) i GitHub CLI.
+- Zainstalowane: Git, Java 22 (projekt celuje w Javę 21, docelowo zainstalować JDK 21), Docker 29, Python 3.14 (wirtualne środowisko w `.venv`). **Brak** Node.js (potrzebny do frontendu) i GitHub CLI.
 - Remote: `git@github.com:JolyVert/air-quality-monitor.git` (SSH działa).
 - IDE użytkownika: IntelliJ IDEA (folder `E:\IdeaProjects`).
 
