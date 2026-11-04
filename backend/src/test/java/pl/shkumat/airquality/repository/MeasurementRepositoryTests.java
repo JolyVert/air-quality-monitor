@@ -48,6 +48,19 @@ class MeasurementRepositoryTests {
     }
 
     @Test
+    void findsLastFetchTimeForSource() {
+        Sensor sensor = sensorRepository.save(new Sensor(SensorSource.AIRLY, "test-35894", 51.106, 17.033));
+        Measurement measurement = measurementRepository.save(
+                new Measurement(sensor.getId(), Instant.parse("2026-11-03T11:00:00Z"), 6.73, 7.78, 60));
+        measurementRepository.flush();
+
+        Instant lastFetchedAt = measurementRepository.findLastFetchedAt(SensorSource.AIRLY);
+
+        assertThat(lastFetchedAt).isNotNull();
+        assertThat(lastFetchedAt).isAfterOrEqualTo(measurement.getFetchedAt());
+    }
+
+    @Test
     void sameSensorAndTimeIsOneMeasurement() {
         Sensor sensor = sensorRepository.save(new Sensor(SensorSource.GIOS, "test-117", 51.129, 17.029));
         Instant hour = Instant.parse("2026-10-30T10:00:00Z");

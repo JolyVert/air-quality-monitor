@@ -1,0 +1,57 @@
+{
+  "current": {
+    "fromDateTime": "2026-11-04T09:44:31.879Z",
+    "tillDateTime": "2026-11-04T10:44:31.879Z",
+    "values": [
+      {"name": "PM25", "value": 8.5},
+      {"name": "PM10", "value": 9.9}
+    ],
+    "indexes": [],
+    "standards": []
+  },
+  "history": [
+    {
+      "fromDateTime": "2026-11-03T10:00:00.000Z",
+      "tillDateTime": "2026-11-03T11:00:00.000Z",
+      "values": [
+        {"name": "PM1", "value": 4.48},
+        {"name": "PM25", "value": 6.73},
+        {"name": "PM10", "value": 7.78},
+        {"name": "PRESSURE", "value": 1028.52},
+        {"name": "HUMIDITY", "value": 83.5},
+        {"name": "TEMPERATURE", "value": 7.0}
+      ],
+      "indexes": [],
+      "standards": []
+    },
+    {
+      "fromDateTime": "2026-11-03T11:00:00.000Z",
+      "tillDateTime": "2026-11-03T12:00:00.000Z",
+      "values": [],
+      "indexes": [],
+      "standards": []
+    },
+    {
+      "fromDateTime": "2026-11-03T12:00:00.000Z",
+      "tillDateTime": "2026-11-03T13:00:00.000Z",
+      "values": [
+        {"name": "PM10", "value": 8.95},
+        {"name": "TEMPERATURE", "value": 7.64}
+      ],
+      "indexes": [],
+      "standards": []
+    },
+    {
+      "fromDateTime": "2026-11-04T09:00:00.000Z",
+      "tillDateTime": "2026-11-04T10:00:00.000Z",
+      "values": [
+        {"name": "PM1", "value": 5.75},
+        {"name": "PM25", "value": 9.01},
+        {"name": "PM10", "value": 10.28}
+      ],
+      "indexes": [],
+      "standards": []
+    }
+  ],
+  "forecast": []
+}

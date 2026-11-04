@@ -13,6 +13,7 @@ W skrócie: aplikacja webowa, która pobiera pomiary PM2,5 i PM10 z czterech źr
 ## Gdzie czego szukać
 
 - `docs/specyfikacja.md`: źródła danych, wymagania FR1–FR9 i niefunkcjonalne, architektura, algorytm detekcji, plan prac, ryzyka, otwarte kwestie. **Główne źródło prawdy o tym, co budujemy.**
+- `.cursor/skills/adding-data-source/SKILL.md`: jak dodać lub zmienić adapter źródła danych (kroki, testy, specyfika GIOŚ, Airly, PurpleAir).
 - `docs/tlo-i-motywacja.md`: liczby o jakości powietrza (UE, Polska, Wrocław), problemy tanich czujników, bibliografia. Przydatne przy pisaniu pracy.
 - Prezentacja na seminarium dyplomowe leży **poza repozytorium**: `C:\Users\Anton\Downloads\pres\prezentacja_wstepna_v7.pptx`, tekst wystąpienia: `C:\Users\Anton\Downloads\pres\tekst_wystapienia.md`. Specyfikacja w `docs/` jest z nią zgodna na dzień 30.10.2026.
 

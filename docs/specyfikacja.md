@@ -104,7 +104,7 @@ Kluczowe decyzje projektowe:
 
 ### Model danych
 
-Schemat tworzą migracje Flyway (`backend/src/main/resources/db/migration`). Czas zawsze w UTC (`timestamptz`).
+Schemat tworzą migracje Flyway (`backend/src/main/resources/db/migration`). Czas zawsze w UTC (`timestamptz`); `measured_at` to koniec okresu uśredniania.
 
 - **`sensor`**: czujnik z dowolnego źródła. Pola: `source` (`GIOS`, `SENSOR_COMMUNITY`, `AIRLY`, `PURPLEAIR`), `external_id` (id w API źródła), `name`, `latitude`, `longitude`, `sensor_type`, `indoor`, `last_seen_at`. Para `source` + `external_id` jest unikalna.
 - **`measurement`**: hypertable TimescaleDB po `measured_at`. Pola: `sensor_id`, `measured_at`, `pm25`, `pm10` (mogą być puste), `averaging_minutes`, `valid`, `fetched_at`. Klucz główny (`sensor_id`, `measured_at`), więc ponowne pobranie tego samego pomiaru nie tworzy duplikatu.
@@ -115,7 +115,7 @@ Mapowanie źródeł:
 |---|---|---|---|
 | GIOŚ | id stacji | 60 min | PM10 i PM2,5 to osobne stanowiska, łączone w jeden wiersz; czas lokalny → UTC |
 | Sensor.community | `sensor.id` | 5 min | P1 = PM10, P2 = PM2,5 |
-| Airly | id instalacji | 60 min | średnia krocząca, czas zaokrąglany do pełnej godziny |
+| Airly | id instalacji | 60 min | pole `history` (24 pełne godziny); pobieranie co 6 h, ok. 68 z 100 zapytań dziennie; po restarcie aplikacji pobieranie jest pomijane, jeśli dane są świeższe niż 6 h |
 | PurpleAir | `sensor_index` | ok. 2 min | `pm2.5_atm`, `pm10.0_atm`; czas z Unix timestamp |
 
 Błędne odczyty nie są usuwane, tylko oznaczane `valid = false`, żeby dało się policzyć, ile danych odrzuciła walidacja.

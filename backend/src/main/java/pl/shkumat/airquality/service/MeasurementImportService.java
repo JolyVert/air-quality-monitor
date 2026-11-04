@@ -10,6 +10,8 @@ import pl.shkumat.airquality.repository.MeasurementRepository;
 import pl.shkumat.airquality.repository.SensorRepository;
 import pl.shkumat.airquality.source.SourceReading;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.List;
 
 @Service
@@ -42,5 +44,10 @@ public class MeasurementImportService {
             measurementRepository.save(new Measurement(sensor.getId(), reading.measuredAt(),
                     reading.pm25(), reading.pm10(), reading.averagingMinutes()));
         }
+    }
+
+    public boolean fetchedWithin(SensorSource source, Duration duration) {
+        Instant lastFetchedAt = measurementRepository.findLastFetchedAt(source);
+        return lastFetchedAt != null && lastFetchedAt.isAfter(Instant.now().minus(duration));
     }
 }
