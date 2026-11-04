@@ -15,7 +15,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 // runs against the database from docker compose, changes are rolled back after each test
-@SpringBootTest
+@SpringBootTest(properties = "app.fetch.enabled=false")
 @Transactional
 class MeasurementRepositoryTests {
 

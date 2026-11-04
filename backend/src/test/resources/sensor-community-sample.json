@@ -1,0 +1,46 @@
+[
+  {
+    "location": {"altitude": "113.8", "latitude": "51.12", "exact_location": 0, "longitude": "17.024", "country": "PL", "id": 55168, "indoor": 0},
+    "timestamp": "2026-10-30 10:46:00",
+    "sensor": {"pin": "1", "id": 68319, "sensor_type": {"name": "SDS011", "manufacturer": "Nova Fitness", "id": 14}},
+    "sensordatavalues": [
+      {"value_type": "P1", "value": "12.6000003814697", "id": 73046267244},
+      {"value_type": "P2", "value": "5.80000019073486", "id": 73046267245}
+    ],
+    "sampling_rate": null,
+    "id": 31204812579
+  },
+  {
+    "location": {"altitude": "113.8", "latitude": "51.12", "exact_location": 0, "longitude": "17.024", "country": "PL", "id": 55168, "indoor": 0},
+    "timestamp": "2026-10-30 10:46:00",
+    "sensor": {"pin": "11", "id": 68320, "sensor_type": {"name": "BME280", "manufacturer": "Bosch", "id": 17}},
+    "sensordatavalues": [
+      {"value_type": "temperature", "value": "9.18", "id": 73046267246},
+      {"value_type": "humidity", "value": "90.81", "id": 73046267247}
+    ],
+    "sampling_rate": null,
+    "id": 31204812580
+  },
+  {
+    "location": {"altitude": "120.0", "latitude": "51.1", "exact_location": 0, "longitude": "17.05", "country": "PL", "id": 60001, "indoor": 1},
+    "timestamp": "2026-10-30 10:47:00",
+    "sensor": {"pin": "1", "id": 97388, "sensor_type": {"name": "PMS7003", "manufacturer": "Plantower", "id": 22}},
+    "sensordatavalues": [
+      {"value_type": "P1", "value": "9.45", "id": 73046267248},
+      {"value_type": "P2", "value": "4.65", "id": 73046267249}
+    ],
+    "sampling_rate": null,
+    "id": 31204812581
+  },
+  {
+    "location": {"altitude": "115.0", "latitude": "51.09", "exact_location": 0, "longitude": "17.0", "country": "PL", "id": 60002, "indoor": 0},
+    "timestamp": "2026-10-30 10:47:00",
+    "sensor": {"pin": "1", "id": 76848, "sensor_type": {"name": "SDS011", "manufacturer": "Nova Fitness", "id": 14}},
+    "sensordatavalues": [
+      {"value_type": "P1", "value": "unknown", "id": 73046267250},
+      {"value_type": "P2", "value": "10.40", "id": 73046267251}
+    ],
+    "sampling_rate": null,
+    "id": 31204812582
+  }
+]
