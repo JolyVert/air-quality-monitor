@@ -1,0 +1,66 @@
+package pl.shkumat.airquality.service;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
+import pl.shkumat.airquality.dto.MeasurementDto;
+import pl.shkumat.airquality.dto.SensorDto;
+import pl.shkumat.airquality.model.Measurement;
+import pl.shkumat.airquality.model.Sensor;
+import pl.shkumat.airquality.repository.MeasurementRepository;
+import pl.shkumat.airquality.repository.SensorRepository;
+
+import java.time.Duration;
+import java.time.Instant;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+@Service
+@RequiredArgsConstructor
+public class SensorService {
+
+    // older measurements are not shown on the map as "current"
+    private static final Duration LATEST_MAX_AGE = Duration.ofHours(24);
+
+    private final SensorRepository sensorRepository;
+    private final MeasurementRepository measurementRepository;
+
+    public List<SensorDto> getSensors() {
+        Map<Long, Measurement> latest = new HashMap<>();
+        for (Measurement m : measurementRepository.findLatestPerSensorSince(Instant.now().minus(LATEST_MAX_AGE))) {
+            latest.put(m.getSensorId(), m);
+        }
+
+        return sensorRepository.findAll().stream()
+                .map(sensor -> toDto(sensor, latest.get(sensor.getId())))
+                .toList();
+    }
+
+    public List<MeasurementDto> getMeasurements(Long sensorId, int hours) {
+        if (!sensorRepository.existsById(sensorId)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Sensor " + sensorId + " not found");
+        }
+        Instant to = Instant.now();
+        Instant from = to.minus(Duration.ofHours(hours));
+        return measurementRepository.findBySensorIdAndMeasuredAtBetweenOrderByMeasuredAt(sensorId, from, to).stream()
+                .map(m -> new MeasurementDto(m.getMeasuredAt(), m.getPm25(), m.getPm10()))
+                .toList();
+    }
+
+    private SensorDto toDto(Sensor sensor, Measurement latest) {
+        return new SensorDto(
+                sensor.getId(),
+                sensor.getSource(),
+                sensor.getName(),
+                sensor.getLatitude(),
+                sensor.getLongitude(),
+                sensor.getSensorType(),
+                sensor.isIndoor(),
+                latest != null ? latest.getMeasuredAt() : null,
+                latest != null ? latest.getPm25() : null,
+                latest != null ? latest.getPm10() : null
+        );
+    }
+}

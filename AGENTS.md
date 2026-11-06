@@ -23,7 +23,7 @@ W skrócie: aplikacja webowa, która pobiera pomiary PM2,5 i PM10 z czterech źr
 - Backend: Java 21 + Spring Boot 4.1 (Spring Web, Spring Data JPA), budowanie Maven (Maven Wrapper `mvnw`). Pobieranie danych asynchroniczne, z ponowieniami i obsługą limitów API.
 - Lombok: w encjach JPA tylko `@Getter`, `@Setter` na polach, które mogą się zmieniać, i `@NoArgsConstructor(access = PROTECTED)`. **Bez `@Data`** i bez `@EqualsAndHashCode` na encjach.
 - Baza: PostgreSQL + TimescaleDB (szeregi czasowe), schemat przez migracje Flyway.
-- Frontend: React + Leaflet.js (mapa) + Chart.js (wykresy).
+- Frontend: React + Vite (JavaScript, bez TypeScriptu) + Leaflet.js (`react-leaflet`, mapa) + Chart.js (`react-chartjs-2`, wykresy). Interfejs po polsku. W trybie deweloperskim Vite przekierowuje `/api` na backend (port 8080), bez CORS.
 - Uruchamianie: Docker (docker compose). Python do skryptów testowych i walidacji danych.
 - Detekcja anomalii: średnia ruchoma i odchylenie standardowe w oknie czasowym → Z-score czujnika → porównanie z sąsiadami i tłem miejskim. Anomalia lokalna = wysoki Z-score przy braku wzrostu w tle. Progi i długość okna dobierane eksperymentalnie.
 
@@ -35,7 +35,8 @@ W skrócie: aplikacja webowa, która pobiera pomiary PM2,5 i PM10 z czterech źr
 
 ## Środowisko (Windows 10)
 
-- Zainstalowane: Git, Java 22 (projekt celuje w Javę 21, docelowo zainstalować JDK 21), Docker 29, Python 3.14 (wirtualne środowisko w `.venv`). **Brak** Node.js (potrzebny do frontendu) i GitHub CLI.
+- Zainstalowane: Git, Java 22 (projekt celuje w Javę 21, docelowo zainstalować JDK 21), Docker 29, Python 3.14 (wirtualne środowisko w `.venv`), Node.js 26 LTS. **Brak** GitHub CLI.
+- Docker Desktop nie startuje sam: jeśli `docker` nie odpowiada, poproś użytkownika o uruchomienie. Testy backendu potrzebują bazy z `docker compose up -d`.
 - Remote: `git@github.com:JolyVert/air-quality-monitor.git` (SSH działa).
 - IDE użytkownika: IntelliJ IDEA (folder `E:\IdeaProjects`).
 

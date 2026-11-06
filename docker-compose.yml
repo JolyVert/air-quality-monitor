@@ -15,5 +15,26 @@ services:
       timeout: 5s
       retries: 5
 
+  backend:
+    build: ./backend
+    # API keys and database settings
+    env_file: .env
+    environment:
+      POSTGRES_HOST: db
+      # inside the docker network the database always listens on 5432
+      POSTGRES_PORT: 5432
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "${FRONTEND_PORT:-3000}:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
 volumes:
   db-data:

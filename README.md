@@ -15,9 +15,9 @@ Engineering thesis · Anton Shkumat · supervisor: dr Michał Piórek
 
 | Layer | Technologies |
 |---|---|
-| Backend | Java, Spring Boot (Spring Web, Spring Data JPA) |
+| Backend | Java 21, Spring Boot 4 (Spring Web, Spring Data JPA), Flyway, Maven |
 | Database | PostgreSQL + TimescaleDB |
-| Frontend | React, Leaflet.js, Chart.js |
+| Frontend | React, Vite, Leaflet.js, Chart.js |
 | Tooling | Docker, Python (test scripts and data validation) |
 
 ## Project structure
@@ -33,10 +33,34 @@ Engineering thesis · Anton Shkumat · supervisor: dr Michał Piórek
 
 ## Getting started
 
+Run everything in Docker (requires only Docker):
+
 ```
 cp .env.example .env    # fill in passwords and API keys
-docker compose up -d
+docker compose up -d --build
 ```
+
+The map is on http://localhost:3000. Stop with `docker compose stop`; data is kept in the `db-data` volume.
+
+For development (requires JDK 21+ and Node.js 20+), run only the database in Docker:
+
+```
+docker compose up -d db
+
+cd backend
+.\mvnw.cmd spring-boot:run    # backend on http://localhost:8080
+
+cd frontend
+npm install
+npm run dev                   # map on http://localhost:5173
+```
+
+Backend tests need the database from `docker compose`: `cd backend && .\mvnw.cmd test`.
+
+REST API:
+
+- `GET /api/sensors`: all sensors with their latest measurement
+- `GET /api/sensors/{id}/measurements?hours=24`: measurement history of one sensor
 
 API check scripts (Python):
 
@@ -56,4 +80,6 @@ Other scripts: `check_gios.py`, `check_airly.py`, `check_purpleair.py`. Raw resp
 
 ## Status
 
-Stage: analysis and design (October 2026). No code yet.
+Working: data fetching from Sensor.community and Airly, storage in TimescaleDB, map with sensors and 24-hour charts.
+
+Next: GIOŚ and PurpleAir adapters, data validation, anomaly detection.

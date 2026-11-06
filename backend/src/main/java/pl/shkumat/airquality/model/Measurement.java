@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 
 @Entity
 @Table(name = "measurement")
@@ -51,6 +52,7 @@ public class Measurement {
         this.pm25 = pm25;
         this.pm10 = pm10;
         this.averagingMinutes = averagingMinutes;
-        this.fetchedAt = Instant.now();
+        // PostgreSQL keeps microseconds, so the object matches what is stored in the database
+        this.fetchedAt = Instant.now().truncatedTo(ChronoUnit.MICROS);
     }
 }

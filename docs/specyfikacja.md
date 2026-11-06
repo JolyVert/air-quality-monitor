@@ -120,6 +120,13 @@ Mapowanie źródeł:
 
 Błędne odczyty nie są usuwane, tylko oznaczane `valid = false`, żeby dało się policzyć, ile danych odrzuciła walidacja.
 
+### REST API i frontend
+
+- `GET /api/sensors`: wszystkie czujniki z ostatnim pomiarem (z ostatnich 24 h; starszy pomiar = brak aktualnych danych).
+- `GET /api/sensors/{id}/measurements?hours=24`: historia pomiarów czujnika (maks. 7 dni).
+
+Frontend (React + Vite, `frontend/`): mapa Wrocławia z czujnikami kolorowanymi według PM2,5 w skali indeksu GIOŚ (0–13, 13–35, 35–55, 55–75, 75–110, > 110 µg/m³), filtr źródeł, legenda, panel czujnika z wykresem PM2,5 i PM10 z ostatnich 24 h. Czujniki wewnętrzne nie są pokazywane. Dane odświeżane co 5 minut.
+
 ## 7. Algorytm detekcji lokalnych anomalii
 
 Idea: dla każdego czujnika sprawdzamy, czy pokazuje teraz coś nietypowego w porównaniu z tym, co zwykle pokazuje, i czy jego sąsiedzi pokazują to samo.
@@ -150,7 +157,7 @@ Parametry do ustalenia eksperymentalnie: długość okna, próg Z-score (np. 3),
 | Analiza i projekt | w trakcie |
 | Pobieranie danych i baza danych | w trakcie |
 | Moduł detekcji anomalii | zaplanowane |
-| Frontend (mapa, dashboard) | zaplanowane |
+| Frontend (mapa, dashboard) | w trakcie (podstawowa mapa i wykresy działają) |
 | Testy i walidacja | zaplanowane |
 | Praca pisemna | zaplanowane |
 

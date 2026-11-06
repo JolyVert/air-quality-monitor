@@ -16,4 +16,13 @@ public interface MeasurementRepository extends JpaRepository<Measurement, Measur
 
     @Query("select max(m.fetchedAt) from Measurement m, Sensor s where s.id = m.sensorId and s.source = :source")
     Instant findLastFetchedAt(@Param("source") SensorSource source);
+
+    // the newest measurement of every sensor (DISTINCT ON is PostgreSQL specific)
+    @Query(value = """
+            select distinct on (sensor_id) *
+            from measurement
+            where measured_at > :since
+            order by sensor_id, measured_at desc
+            """, nativeQuery = true)
+    List<Measurement> findLatestPerSensorSince(@Param("since") Instant since);
 }
