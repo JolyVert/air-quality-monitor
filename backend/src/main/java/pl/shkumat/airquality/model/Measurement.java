@@ -2,6 +2,8 @@ package pl.shkumat.airquality.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.IdClass;
 import jakarta.persistence.Table;
@@ -39,9 +41,12 @@ public class Measurement {
     @Column(name = "averaging_minutes", nullable = false)
     private int averagingMinutes;
 
-    @Setter
     @Column(nullable = false)
     private boolean valid = true;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "invalid_reason")
+    private InvalidReason invalidReason;
 
     @Column(name = "fetched_at", nullable = false)
     private Instant fetchedAt;
@@ -54,5 +59,10 @@ public class Measurement {
         this.averagingMinutes = averagingMinutes;
         // PostgreSQL keeps microseconds, so the object matches what is stored in the database
         this.fetchedAt = Instant.now().truncatedTo(ChronoUnit.MICROS);
+    }
+
+    public void markInvalid(InvalidReason reason) {
+        this.valid = false;
+        this.invalidReason = reason;
     }
 }

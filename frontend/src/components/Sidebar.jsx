@@ -34,7 +34,7 @@ function Sidebar({ sensors, enabledSources, onToggleSource }) {
       ))}
       <div className="legend-row">
         <span className="dot" style={{ background: NO_DATA_COLOR }} />
-        Brak aktualnych danych
+        Brak danych lub błędny odczyt
       </div>
     </div>
   )

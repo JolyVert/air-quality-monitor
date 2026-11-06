@@ -1,8 +1,10 @@
 package pl.shkumat.airquality.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Limit;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import pl.shkumat.airquality.model.InvalidReason;
 import pl.shkumat.airquality.model.Measurement;
 import pl.shkumat.airquality.model.Sensor;
 import pl.shkumat.airquality.model.SensorSource;
@@ -12,6 +14,7 @@ import pl.shkumat.airquality.source.SourceReading;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -20,14 +23,21 @@ public class MeasurementImportService {
 
     private final SensorRepository sensorRepository;
     private final MeasurementRepository measurementRepository;
+    private final MeasurementValidator validator;
 
     /**
      * Saves readings from one source. Sensors seen for the first time are created,
-     * known sensors get updated location and last_seen_at.
+     * known sensors get updated location and last_seen_at. Every measurement is validated,
+     * wrong ones are saved too, but with valid = false.
      */
     @Transactional
     public void save(SensorSource source, List<SourceReading> readings) {
-        for (SourceReading reading : readings) {
+        // oldest first, so validation of a reading already sees the earlier ones from the same batch
+        List<SourceReading> sorted = readings.stream()
+                .sorted(Comparator.comparing(SourceReading::measuredAt))
+                .toList();
+
+        for (SourceReading reading : sorted) {
             Sensor sensor = sensorRepository.findBySourceAndExternalId(source, reading.externalId())
                     .orElseGet(() -> new Sensor(source, reading.externalId(), reading.latitude(), reading.longitude()));
 
@@ -41,8 +51,15 @@ public class MeasurementImportService {
             }
             sensor = sensorRepository.save(sensor);
 
-            measurementRepository.save(new Measurement(sensor.getId(), reading.measuredAt(),
-                    reading.pm25(), reading.pm10(), reading.averagingMinutes()));
+            Measurement measurement = new Measurement(sensor.getId(), reading.measuredAt(),
+                    reading.pm25(), reading.pm10(), reading.averagingMinutes());
+            List<Measurement> previous = measurementRepository.findBySensorIdAndMeasuredAtBeforeOrderByMeasuredAtDesc(
+                    sensor.getId(), reading.measuredAt(), Limit.of(validator.previousNeeded()));
+            InvalidReason reason = validator.validate(measurement, previous);
+            if (reason != null) {
+                measurement.markInvalid(reason);
+            }
+            measurementRepository.save(measurement);
         }
     }
 

@@ -17,8 +17,11 @@ export function levelForPm25(pm25) {
   return PM25_LEVELS.find((level) => pm25 <= level.max)
 }
 
-export function colorForPm25(pm25) {
-  const level = levelForPm25(pm25)
+export function colorForSensor(sensor) {
+  if (!sensor.valid) {
+    return NO_DATA_COLOR
+  }
+  const level = levelForPm25(sensor.pm25)
   return level ? level.color : NO_DATA_COLOR
 }
 

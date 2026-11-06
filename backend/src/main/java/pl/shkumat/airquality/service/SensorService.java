@@ -45,7 +45,7 @@ public class SensorService {
         Instant to = Instant.now();
         Instant from = to.minus(Duration.ofHours(hours));
         return measurementRepository.findBySensorIdAndMeasuredAtBetweenOrderByMeasuredAt(sensorId, from, to).stream()
-                .map(m -> new MeasurementDto(m.getMeasuredAt(), m.getPm25(), m.getPm10()))
+                .map(m -> new MeasurementDto(m.getMeasuredAt(), m.getPm25(), m.getPm10(), m.isValid()))
                 .toList();
     }
 
@@ -60,7 +60,8 @@ public class SensorService {
                 sensor.isIndoor(),
                 latest != null ? latest.getMeasuredAt() : null,
                 latest != null ? latest.getPm25() : null,
-                latest != null ? latest.getPm10() : null
+                latest != null ? latest.getPm10() : null,
+                latest == null || latest.isValid()
         );
     }
 }

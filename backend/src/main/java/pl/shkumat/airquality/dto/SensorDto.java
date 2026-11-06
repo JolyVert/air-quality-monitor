@@ -6,6 +6,7 @@ import java.time.Instant;
 
 /**
  * Sensor for the map, with its latest measurement (null values if there is no recent one).
+ * valid = false means validation rejected the latest measurement.
  */
 public record SensorDto(
         Long id,
@@ -17,6 +18,7 @@ public record SensorDto(
         boolean indoor,
         Instant measuredAt,
         Double pm25,
-        Double pm10
+        Double pm10,
+        boolean valid
 ) {
 }

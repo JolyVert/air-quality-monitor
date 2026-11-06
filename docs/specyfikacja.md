@@ -107,7 +107,7 @@ Kluczowe decyzje projektowe:
 Schemat tworzą migracje Flyway (`backend/src/main/resources/db/migration`). Czas zawsze w UTC (`timestamptz`); `measured_at` to koniec okresu uśredniania.
 
 - **`sensor`**: czujnik z dowolnego źródła. Pola: `source` (`GIOS`, `SENSOR_COMMUNITY`, `AIRLY`, `PURPLEAIR`), `external_id` (id w API źródła), `name`, `latitude`, `longitude`, `sensor_type`, `indoor`, `last_seen_at`. Para `source` + `external_id` jest unikalna.
-- **`measurement`**: hypertable TimescaleDB po `measured_at`. Pola: `sensor_id`, `measured_at`, `pm25`, `pm10` (mogą być puste), `averaging_minutes`, `valid`, `fetched_at`. Klucz główny (`sensor_id`, `measured_at`), więc ponowne pobranie tego samego pomiaru nie tworzy duplikatu.
+- **`measurement`**: hypertable TimescaleDB po `measured_at`. Pola: `sensor_id`, `measured_at`, `pm25`, `pm10` (mogą być puste), `averaging_minutes`, `valid`, `invalid_reason`, `fetched_at`. Klucz główny (`sensor_id`, `measured_at`), więc ponowne pobranie tego samego pomiaru nie tworzy duplikatu.
 
 Mapowanie źródeł:
 
@@ -118,20 +118,25 @@ Mapowanie źródeł:
 | Airly | id instalacji | 60 min | pole `history` (24 pełne godziny); pobieranie co 6 h, ok. 68 z 100 zapytań dziennie; po restarcie aplikacji pobieranie jest pomijane, jeśli dane są świeższe niż 6 h |
 | PurpleAir | `sensor_index` | ok. 2 min | `pm2.5_atm`, `pm10.0_atm`; czas z Unix timestamp |
 
-Błędne odczyty nie są usuwane, tylko oznaczane `valid = false`, żeby dało się policzyć, ile danych odrzuciła walidacja.
+Błędne odczyty nie są usuwane, tylko oznaczane `valid = false`, żeby dało się policzyć, ile danych odrzuciła walidacja. Przyczyna trafia do `invalid_reason`:
+
+- `OUT_OF_RANGE`: PM2,5 lub PM10 poniżej 0 albo powyżej 1000 µg/m³ (fizycznie niemożliwe w powietrzu zewnętrznym).
+- `STUCK_VALUE`: czujnik podał te same PM2,5 i PM10 tyle razy z rzędu, ile wynosi `app.validation.stuck-count` (domyślnie 6, np. 30 min dla Sensor.community). Łapie ciągi zer i zawieszone czujniki.
+
+Walidacja działa przy zapisie: odczyty z jednej partii są sortowane po czasie i porównywane z poprzednimi pomiarami czujnika z bazy. Celowo nie odrzucamy PM2,5 > PM10, bo tanie czujniki często tak raportują. Odczyty zaniżone względem sąsiadów (np. stale 1 µg/m³ przy tle 15) nie są tu łapane; to zadanie porównania z otoczeniem w module detekcji.
 
 ### REST API i frontend
 
 - `GET /api/sensors`: wszystkie czujniki z ostatnim pomiarem (z ostatnich 24 h; starszy pomiar = brak aktualnych danych).
 - `GET /api/sensors/{id}/measurements?hours=24`: historia pomiarów czujnika (maks. 7 dni).
 
-Frontend (React + Vite, `frontend/`): mapa Wrocławia z czujnikami kolorowanymi według PM2,5 w skali indeksu GIOŚ (0–13, 13–35, 35–55, 55–75, 75–110, > 110 µg/m³), filtr źródeł, legenda, panel czujnika z wykresem PM2,5 i PM10 z ostatnich 24 h. Czujniki wewnętrzne nie są pokazywane. Dane odświeżane co 5 minut.
+Frontend (React + Vite, `frontend/`): mapa Wrocławia z czujnikami kolorowanymi według PM2,5 w skali indeksu GIOŚ (0–13, 13–35, 35–55, 55–75, 75–110, > 110 µg/m³), filtr źródeł, legenda, panel czujnika z wykresem PM2,5 i PM10 z ostatnich 24 h. Czujniki wewnętrzne nie są pokazywane. Dane odświeżane co 5 minut. API zwraca pole `valid`; czujnik z błędnym ostatnim odczytem jest szary na mapie, a błędne punkty na wykresie są pomijane (przerwa w linii).
 
 ## 7. Algorytm detekcji lokalnych anomalii
 
 Idea: dla każdego czujnika sprawdzamy, czy pokazuje teraz coś nietypowego w porównaniu z tym, co zwykle pokazuje, i czy jego sąsiedzi pokazują to samo.
 
-1. **Walidacja.** Odrzucenie odczytów na pewno błędnych (ciągi zer, wartości niemożliwe fizycznie).
+1. **Walidacja.** Odrzucenie odczytów na pewno błędnych (ciągi zer, wartości niemożliwe fizycznie); reguły w sekcji „Model danych”. Detekcja korzysta tylko z odczytów `valid = true`.
 2. **Norma czujnika.** W oknie czasowym (np. kilka ostatnich godzin) liczymy średnią ruchomą μ i odchylenie standardowe σ. Każdy czujnik ma własną normę.
 3. **Z-score.** Dla nowego pomiaru x: `z = (x − μ) / σ`. Przykład: μ = 20, σ = 3, x = 35 → z = 5.
 4. **Porównanie z otoczeniem.** Wysoki Z-score + spokojni sąsiedzi i tło miejskie → **anomalia lokalna**. Wzrost wszędzie → ogólny wzrost w mieście (smog), nie anomalia lokalna.

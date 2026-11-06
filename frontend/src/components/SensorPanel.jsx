@@ -14,7 +14,7 @@ function SensorPanel({ sensor, onClose }) {
       .catch((e) => setError(e.message))
   }, [sensor.id])
 
-  const level = levelForPm25(sensor.pm25)
+  const level = sensor.valid ? levelForPm25(sensor.pm25) : null
 
   return (
     <div className="panel">
@@ -37,6 +37,7 @@ function SensorPanel({ sensor, onClose }) {
       </div>
       <p>
         {level && <span className="badge" style={{ background: level.color }}>{level.label}</span>}
+        {!sensor.valid && <span className="badge invalid">Błędny odczyt</span>}
         <span className="muted"> pomiar: {formatTime(sensor.measuredAt)}</span>
       </p>
 
