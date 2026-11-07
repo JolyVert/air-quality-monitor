@@ -1,0 +1,15 @@
+{
+  "Lista stacji pomiarowych": [
+    {
+      "Identyfikator stacji": 117,
+      "Kod stacji": "DsWrocWybCon",
+      "Nazwa stacji": "Wrocław, wyb. Conrada-Korzeniowskiego",
+      "WGS84 φ N": "51.129378",
+      "WGS84 λ E": "17.029250",
+      "Identyfikator miasta": 1064,
+      "Nazwa miasta": "Wrocław",
+      "Ulica": "ul. Wyb. J.Conrada-Korzeniowskiego 18"
+    }
+  ],
+  "totalPages": 1
+}

@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
 import pl.shkumat.airquality.model.SensorSource;
+import pl.shkumat.airquality.source.RestClients;
 import pl.shkumat.airquality.source.SourceAdapter;
 import pl.shkumat.airquality.source.SourceReading;
 
@@ -45,7 +46,7 @@ public class AirlyAdapter implements SourceAdapter {
         this.longitude = longitude;
         this.radiusKm = radiusKm;
         this.maxInstallations = maxInstallations;
-        this.restClient = RestClient.builder()
+        this.restClient = RestClients.builder()
                 .baseUrl(BASE_URL)
                 .defaultHeader("apikey", apiKey)
                 .defaultHeader("Accept", "application/json")

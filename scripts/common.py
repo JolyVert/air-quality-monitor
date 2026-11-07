@@ -1,5 +1,6 @@
 import json
 import os
+import sys
 from datetime import datetime
 
 from dotenv import load_dotenv
@@ -8,6 +9,9 @@ SCRIPTS_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.join(SCRIPTS_DIR, "data")
 
 load_dotenv(os.path.join(SCRIPTS_DIR, "..", ".env"))
+
+# the Windows console uses cp1251/cp1250 and fails on Polish letters like "ł"
+sys.stdout.reconfigure(encoding="utf-8")
 
 # Wroclaw city center and a bounding box around the city
 WROCLAW_LAT = 51.11

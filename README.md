@@ -80,6 +80,6 @@ Other scripts: `check_gios.py`, `check_airly.py`, `check_looko2.py`. Raw respons
 
 ## Status
 
-Working: data fetching from Sensor.community, Airly and LookO2, validation of readings, storage in TimescaleDB, map with sensors and 24-hour charts.
+Working: data fetching from all four sources (GIOŚ, Sensor.community, Airly, LookO2), validation of readings, storage in TimescaleDB, map with sensors and 24-hour charts.
 
-Next: GIOŚ adapter, anomaly detection.
+Next: anomaly detection.

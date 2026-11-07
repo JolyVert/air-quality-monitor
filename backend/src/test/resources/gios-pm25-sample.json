@@ -1,0 +1,7 @@
+{
+  "Lista danych pomiarowych": [
+    { "Kod stanowiska": "DsWrocWybCon-PM2.5-1g", "Data": "2026-11-07 21:00:00", "Wartość": null },
+    { "Kod stanowiska": "DsWrocWybCon-PM2.5-1g", "Data": "2026-11-07 20:00:00", "Wartość": 36.5 },
+    { "Kod stanowiska": "DsWrocWybCon-PM2.5-1g", "Data": "2026-11-07 19:00:00", "Wartość": 40.7 }
+  ]
+}

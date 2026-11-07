@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 import pl.shkumat.airquality.model.SensorSource;
+import pl.shkumat.airquality.source.RestClients;
 import pl.shkumat.airquality.source.SourceAdapter;
 import pl.shkumat.airquality.source.SourceReading;
 
@@ -28,7 +29,7 @@ public class SensorCommunityAdapter implements SourceAdapter {
     private static final DateTimeFormatter TIMESTAMP_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private static final int AVERAGING_MINUTES = 5;
 
-    private final RestClient restClient = RestClient.create();
+    private final RestClient restClient = RestClients.create();
     private final double latitude;
     private final double longitude;
     private final double radiusKm;

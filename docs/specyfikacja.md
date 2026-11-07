@@ -47,7 +47,7 @@ Szczegóły techniczne zebrane podczas przygotowania prezentacji. **Przed implem
 
 Sprawdzone skryptami z `scripts/` (30.10.2026, Wrocław):
 
-- **GIOŚ:** nowe API `api.gios.gov.pl/pjp-api/v1/rest`, nazwy pól po polsku (np. „Identyfikator stacji”, „Wartość”), czas lokalny. 5 stacji, ale bieżące dane PM ma tylko część stanowisk: PM10 na Korzeniowskiego i Orzechowej oraz PM2,5 na Na Grobli to stanowiska manualne (wyniki po 4–8 tygodniach), Bartnicza nie mierzy PM. Na Wiśniowej ostatnie godziny miały puste wartości. Wskaźnik trzeba wybierać po dokładnym kodzie `PM10` / `PM2.5`.
+- **GIOŚ:** nowe API `api.gios.gov.pl/pjp-api/v1/rest`, nazwy pól po polsku (np. „Identyfikator stacji”, „Wartość”), czas lokalny. 5 stacji, ale bieżące dane PM ma tylko część stanowisk: PM10 na Korzeniowskiego i Orzechowej oraz PM2,5 na Na Grobli to stanowiska manualne (wyniki po 4–8 tygodniach), Bartnicza nie mierzy PM. Na Wiśniowej ostatnie godziny miały puste wartości. Wskaźnik trzeba wybierać po dokładnym kodzie `PM10` / `PM2.5`. Ponowne sprawdzenie 07.11.2026: bieżące dane ma tylko PM2,5 na Korzeniowskiego (20 ostatnich godzin); Wiśniowa nadal zwraca same `null`. W promieniu 10 km od centrum są tylko te 5 stacji, lista wszystkich 288 stacji mieści się na jednej stronie.
 - **Sensor.community:** `data.sensor.community/airrohr/v1/filter/area=lat,lon,km`, w promieniu 10 km 45 czujników PM (głównie SDS011). P1 = PM10, P2 = PM2,5, czas w UTC. W odpowiedzi są też czujniki temperatury bez PM.
 - **Airly:** w promieniu 10 km 16 instalacji. Limit darmowego klucza: 100 zapytań dziennie (nagłówek `X-RateLimit-Remaining-day`).
 - **PurpleAir:** klucz działa, ale we Wrocławiu i okolicy jest tylko 1 czujnik i jest on wewnętrzny (indoor). Dlatego zrezygnowaliśmy z tego źródła.
@@ -114,7 +114,7 @@ Mapowanie źródeł:
 
 | Źródło | Czujnik (`external_id`) | Uśrednianie | Uwagi |
 |---|---|---|---|
-| GIOŚ | id stacji | 60 min | PM10 i PM2,5 to osobne stanowiska, łączone w jeden wiersz; czas lokalny → UTC |
+| GIOŚ | id stacji | 60 min | PM10 i PM2,5 to osobne stanowiska, łączone w jeden wiersz po godzinie; czas lokalny (`Europe/Warsaw`) → UTC; pobieranie co 30 min, za każdym razem ok. 20 ostatnich godzin; stanowiska manualne (HTTP 400) i puste godziny pomijane |
 | Sensor.community | `sensor.id` | 5 min | P1 = PM10, P2 = PM2,5 |
 | Airly | id instalacji | 60 min | pole `history` (24 pełne godziny); pobieranie co 6 h, ok. 68 z 100 zapytań dziennie; po restarcie aplikacji pobieranie jest pomijane, jeśli dane są świeższe niż 6 h |
 | LookO2 | `Device` (adres MAC) | nieznane, przyjęte 1 min | bieżące `PM25`, `PM10` (nie `AveragePM*`); pobieranie co 30 min, także po restarcie; czujniki w promieniu `app.area.radius-km` od centrum; pomijane odczyty starsze niż 1 h |
@@ -185,5 +185,5 @@ Strategia: najpierw działający szkielet od źródeł do mapy, potem udoskonala
 - Cele liczbowe wydajności (czas ładowania mapy, czas zapytań).
 - LookO2 zamiast PurpleAir: zmiana względem prezentacji, do potwierdzenia z promotorem. Czekamy na własny token; okres uśredniania odczytów nieznany (zapytać LookO2).
 - Airly: 100 zapytań dziennie przy 16 instalacjach, jak często pobierać dane.
-- GIOŚ: tylko kilka stanowisk PM z bieżącymi danymi, co wpływa na pomysł „tło = najbliższa stacja GIOŚ”.
+- GIOŚ: obecnie tylko 1 stanowisko PM z bieżącymi danymi (PM2,5 na Korzeniowskiego), więc „tło = najbliższa stacja GIOŚ” oznacza w praktyce jedną stację dla całego miasta.
 - Zakres pracy do uzgodnienia z promotorem.

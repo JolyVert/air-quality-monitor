@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 import pl.shkumat.airquality.source.SourceAdapter;
 import pl.shkumat.airquality.source.SourceReading;
 import pl.shkumat.airquality.source.airly.AirlyAdapter;
+import pl.shkumat.airquality.source.gios.GiosAdapter;
 import pl.shkumat.airquality.source.looko2.LookO2Adapter;
 import pl.shkumat.airquality.source.sensorcommunity.SensorCommunityAdapter;
 
@@ -28,6 +29,7 @@ public class FetchScheduler {
     private final SensorCommunityAdapter sensorCommunityAdapter;
     private final AirlyAdapter airlyAdapter;
     private final LookO2Adapter lookO2Adapter;
+    private final GiosAdapter giosAdapter;
     private final MeasurementImportService importService;
 
     @Value("${app.airly.fetch-interval}")
@@ -59,6 +61,11 @@ public class FetchScheduler {
             return;
         }
         fetch(lookO2Adapter);
+    }
+
+    @Scheduled(initialDelayString = "PT25S", fixedDelayString = "${app.gios.fetch-interval}")
+    public void fetchGios() {
+        fetch(giosAdapter);
     }
 
     private void fetch(SourceAdapter adapter) {

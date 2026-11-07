@@ -4,8 +4,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 import pl.shkumat.airquality.model.SensorSource;
+import pl.shkumat.airquality.source.Geo;
+import pl.shkumat.airquality.source.RestClients;
 import pl.shkumat.airquality.source.SourceAdapter;
 import pl.shkumat.airquality.source.SourceReading;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -26,9 +29,9 @@ public class LookO2Adapter implements SourceAdapter {
     private static final int AVERAGING_MINUTES = 1;
     // most sensors in the response stopped working years ago, skip readings older than this
     private static final Duration MAX_AGE = Duration.ofHours(1);
-    private static final double EARTH_RADIUS_KM = 6371;
 
-    private final RestClient restClient = RestClient.create();
+    private final RestClient restClient = RestClients.create();
+    private final JsonMapper jsonMapper = JsonMapper.builder().build();
     private final double latitude;
     private final double longitude;
     private final double radiusKm;
@@ -52,13 +55,15 @@ public class LookO2Adapter implements SourceAdapter {
 
     @Override
     public List<SourceReading> fetchReadings() {
-        LookO2Record[] records = restClient.get()
+        // the API sends JSON with "Content-Type: text/html", so we parse the text ourselves
+        String body = restClient.get()
                 .uri(URL, token)
                 .retrieve()
-                .body(LookO2Record[].class);
-        if (records == null) {
+                .body(String.class);
+        if (body == null) {
             return List.of();
         }
+        LookO2Record[] records = jsonMapper.readValue(body, LookO2Record[].class);
         return toReadings(Arrays.asList(records), Instant.now());
     }
 
@@ -68,7 +73,7 @@ public class LookO2Adapter implements SourceAdapter {
             try {
                 double lat = Double.parseDouble(record.latitude());
                 double lon = Double.parseDouble(record.longitude());
-                if (distanceKm(latitude, longitude, lat, lon) > radiusKm) {
+                if (Geo.distanceKm(latitude, longitude, lat, lon) > radiusKm) {
                     continue;
                 }
 
@@ -94,15 +99,5 @@ public class LookO2Adapter implements SourceAdapter {
             }
         }
         return readings;
-    }
-
-    // haversine formula, distance between two points on Earth
-    private static double distanceKm(double lat1, double lon1, double lat2, double lon2) {
-        double dLat = Math.toRadians(lat2 - lat1);
-        double dLon = Math.toRadians(lon2 - lon1);
-        double a = Math.sin(dLat / 2) * Math.sin(dLat / 2)
-                + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
-                * Math.sin(dLon / 2) * Math.sin(dLon / 2);
-        return 2 * EARTH_RADIUS_KM * Math.asin(Math.sqrt(a));
     }
 }

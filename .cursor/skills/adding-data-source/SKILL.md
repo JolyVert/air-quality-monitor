@@ -29,7 +29,7 @@ Uruchom `scripts/check_<źródło>.py` (instrukcja w `README.md`). Surowa odpowi
 
 - `<Nazwa>Record`: rekordy Javy tylko z potrzebnymi polami, `@JsonIgnoreProperties(ignoreUnknown = true)` na każdym, `@JsonProperty` dla nazw z podkreśleniem lub polskimi znakami.
 - `<Nazwa>Adapter implements SourceAdapter`, `@Component`:
-  - `fetchReadings()` tylko pobiera dane (`RestClient.create()`) i woła `toReadings(...)`.
+  - `fetchReadings()` tylko pobiera dane i woła `toReadings(...)`. Klient HTTP zawsze z `RestClients.create()` / `RestClients.builder()` (timeouty), nie `RestClient.create()`: wszystkie źródła idą w jednym wątku schedulera, więc zawieszone zapytanie zatrzymałoby wszystko.
   - `toReadings(...)` jest package-private i nie robi zapytań HTTP, żeby dało się go przetestować.
   - Parametry przez `@Value` w konstruktorze: `app.area.latitude`, `app.area.longitude`, `app.area.radius-km`, klucz np. `${AIRLY_API_KEY:}`.
 - Reguły konwersji do `SourceReading`:
@@ -77,7 +77,7 @@ Uzupełnij tabelę „Mapowanie źródeł” w `docs/specyfikacja.md`. Komunikat
 | Źródło | Uśrednianie | Na co uważać |
 |---|---|---|
 | Sensor.community | 5 min | gotowe; P1 = PM10, P2 = PM2,5, liczby jako stringi, czas UTC bez strefy |
-| GIOŚ | 60 min | stacja = jeden czujnik; PM10 i PM2,5 to osobne stanowiska, wybieraj po dokładnym kodzie `PM10` / `PM2.5` i łącz po godzinie; stanowiska manualne zwracają HTTP 400 (pomiń); najnowsze godziny często mają `Wartość: null`; czas lokalny `Europe/Warsaw` → UTC; pola po polsku |
+| GIOŚ | 60 min | gotowe; stacja = jeden czujnik; stacje filtrowane po odległości od centrum (`Geo.distanceKm`); PM10 i PM2,5 to osobne stanowiska, wybieraj po dokładnym kodzie `PM10` / `PM2.5` i łącz po godzinie; stanowiska manualne zwracają HTTP 400 (pomiń); najnowsze godziny często mają `Wartość: null`; czas lokalny `Europe/Warsaw` → UTC; pola po polsku |
 | Airly | 60 min | gotowe; nagłówek `apikey`; limit 100/dzień, jedno pobranie = 1 + liczba instalacji zapytań, harmonogram co 6 h i pomijanie po restarcie (`fetchedWithin`); używamy `history` (24 pełne godziny), nie `current` (średnia krocząca); nazwy `PM25`, `PM10` |
 | LookO2 | nieznane (1 min) | gotowe; `GetAll` zwraca całą Polskę, filtr po odległości od centrum w adapterze; token `LOOKO2_TOKEN`, bez niego `XXX` z dokumentacji; max raz na 30 min, także po restarcie (`fetchedWithin`); większość czujników martwa, pomijamy odczyty starsze niż 1 h; wszystko jako stringi, czas Unix; `Indoor` zawsze `"0"` |
 
