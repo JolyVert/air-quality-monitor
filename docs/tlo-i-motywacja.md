@@ -49,4 +49,4 @@ Przyczyny i działania:
 7. GUS: Raport SDG, cel 11. Air quality in Polish cities (raportsdg.stat.gov.pl).
 8. UM Wrocław: Wrocławska Polityka Mobilności, czynnik nr 32, poziom emisji zanieczyszczeń z transportu, 2025 (dane stacji WIOŚ).
 9. Uchwały antysmogowe woj. dolnośląskiego (2017): gramwzielone.pl, money.pl; PWr: sieć czujników na kampusie (pwr.edu.pl, 2019).
-10. GIOŚ: Interfejs API (powietrze.gios.gov.pl/pjp/content/api); Sensor.community: API (github.com/opendata-stuttgart/meta/wiki/APIs); Airly: API (developer.airly.org); PurpleAir: API (api.purpleair.com); sensoto.io.
+10. GIOŚ: Interfejs API (powietrze.gios.gov.pl/pjp/content/api); Sensor.community: API (github.com/opendata-stuttgart/meta/wiki/APIs); Airly: API (developer.airly.org); LookO2: API (looko2.pl/aktualnosci/api); PurpleAir: API (api.purpleair.com, sprawdzony i odrzucony); sensoto.io.

@@ -1,6 +1,6 @@
 # Specyfikacja systemu
 
-Stan na 30.10.2026, zgodny z prezentacją na seminarium dyplomowe (wersja v7, 17 slajdów).
+Stan na 30.10.2026, zgodny z prezentacją na seminarium dyplomowe (wersja v7, 17 slajdów). Zmiana po prezentacji (07.11.2026): PurpleAir zastąpiony przez LookO2, bo we Wrocławiu PurpleAir ma tylko 1 czujnik wewnętrzny.
 
 ## 1. Problem
 
@@ -36,21 +36,22 @@ Obszar testowy: Wrocław.
 | GIOŚ | stacje państwowe, dokładne, co godzinę | niska | otwarty |
 | Airly | własne (kalibrowane) | wysoka | klucz API, dzienny limit zapytań |
 | Sensor.community | obywatelskie (głównie SDS011), średnie z 5 minut | wysoka | otwarty, bez klucza |
-| PurpleAir | własne (sensory Plantower) | niska | klucz API (rozliczanie w punktach) |
+| LookO2 | polska sieć tanich czujników, bieżący odczyt | średnia | token (beta, na prośbę mailową), nie częściej niż co 30 min |
 
 Szczegóły techniczne zebrane podczas przygotowania prezentacji. **Przed implementacją sprawdzić w aktualnej dokumentacji:**
 
 - **GIOŚ:** starsze usługi `/rest` są wycofywane, korzystamy z nowego API. Limit dla bieżących danych: 1500 żądań na minutę. Dokumentacja: powietrze.gios.gov.pl/pjp/content/api.
 - **Sensor.community:** plik `data.json` zwraca średnie z ostatnich 5 minut. Dokumentacja: github.com/opendata-stuttgart/meta/wiki/APIs.
 - **Airly:** klucz API, dzienny limit zapytań na darmowym planie. Dokumentacja: developer.airly.org. Według NCBR ponad 2800 czujników w Polsce.
-- **PurpleAir:** klucz API, zapytania rozliczane w punktach. Dokumentacja: api.purpleair.com.
+- **LookO2:** API w wersji beta, bez gwarancji działania, tylko do użytku niekomercyjnego. Token na prośbę (kontakt@looko2.com), dane opóźnione o ok. 20 min względem serwisu. Dokumentacja: looko2.pl/aktualnosci/api.
 
 Sprawdzone skryptami z `scripts/` (30.10.2026, Wrocław):
 
 - **GIOŚ:** nowe API `api.gios.gov.pl/pjp-api/v1/rest`, nazwy pól po polsku (np. „Identyfikator stacji”, „Wartość”), czas lokalny. 5 stacji, ale bieżące dane PM ma tylko część stanowisk: PM10 na Korzeniowskiego i Orzechowej oraz PM2,5 na Na Grobli to stanowiska manualne (wyniki po 4–8 tygodniach), Bartnicza nie mierzy PM. Na Wiśniowej ostatnie godziny miały puste wartości. Wskaźnik trzeba wybierać po dokładnym kodzie `PM10` / `PM2.5`.
 - **Sensor.community:** `data.sensor.community/airrohr/v1/filter/area=lat,lon,km`, w promieniu 10 km 45 czujników PM (głównie SDS011). P1 = PM10, P2 = PM2,5, czas w UTC. W odpowiedzi są też czujniki temperatury bez PM.
 - **Airly:** w promieniu 10 km 16 instalacji. Limit darmowego klucza: 100 zapytań dziennie (nagłówek `X-RateLimit-Remaining-day`).
-- **PurpleAir:** klucz działa, ale we Wrocławiu i okolicy jest tylko 1 czujnik i jest on wewnętrzny (indoor).
+- **PurpleAir:** klucz działa, ale we Wrocławiu i okolicy jest tylko 1 czujnik i jest on wewnętrzny (indoor). Dlatego zrezygnowaliśmy z tego źródła.
+- **LookO2** (07.11.2026): `api.looko2.com/?method=GetAll` zwraca ostatni odczyt wszystkich ok. 2200 czujników naraz (filtr obszaru robimy sami). Działa z tokenem przykładowym `XXX` z dokumentacji. W prostokącie wokół Wrocławia 48 czujników, z danymi z ostatniej doby 14 (2 z nich wysyłają same zera); reszta przestała działać w latach 2018–2026. Wartości to liczby całkowite w postaci stringów, czas jako Unix timestamp, okres uśredniania nie jest podany. Pole `Indoor` ma zawsze `"0"`, także dla czujników z nazwą sugerującą pomieszczenie.
 
 Nowe źródło dodaje się przez adapter, bez zmian w reszcie systemu.
 
@@ -92,7 +93,7 @@ Przepływ danych od lewej do prawej:
 GIOŚ API                asynchronicznie, ponowienia,    PostgreSQL + TimescaleDB   średnia ruchoma, Z-score,     Spring Boot REST,
 Sensor.community        adaptery do wspólnego modelu    (szeregi czasowe)          porównanie z otoczeniem       React, Leaflet, Chart.js
 Airly API
-PurpleAir API
+LookO2 API
 ```
 
 Kluczowe decyzje projektowe:
@@ -106,7 +107,7 @@ Kluczowe decyzje projektowe:
 
 Schemat tworzą migracje Flyway (`backend/src/main/resources/db/migration`). Czas zawsze w UTC (`timestamptz`); `measured_at` to koniec okresu uśredniania.
 
-- **`sensor`**: czujnik z dowolnego źródła. Pola: `source` (`GIOS`, `SENSOR_COMMUNITY`, `AIRLY`, `PURPLEAIR`), `external_id` (id w API źródła), `name`, `latitude`, `longitude`, `sensor_type`, `indoor`, `last_seen_at`. Para `source` + `external_id` jest unikalna.
+- **`sensor`**: czujnik z dowolnego źródła. Pola: `source` (`GIOS`, `SENSOR_COMMUNITY`, `AIRLY`, `LOOKO2`), `external_id` (id w API źródła), `name`, `latitude`, `longitude`, `sensor_type`, `indoor`, `last_seen_at`. Para `source` + `external_id` jest unikalna.
 - **`measurement`**: hypertable TimescaleDB po `measured_at`. Pola: `sensor_id`, `measured_at`, `pm25`, `pm10` (mogą być puste), `averaging_minutes`, `valid`, `invalid_reason`, `fetched_at`. Klucz główny (`sensor_id`, `measured_at`), więc ponowne pobranie tego samego pomiaru nie tworzy duplikatu.
 
 Mapowanie źródeł:
@@ -116,12 +117,12 @@ Mapowanie źródeł:
 | GIOŚ | id stacji | 60 min | PM10 i PM2,5 to osobne stanowiska, łączone w jeden wiersz; czas lokalny → UTC |
 | Sensor.community | `sensor.id` | 5 min | P1 = PM10, P2 = PM2,5 |
 | Airly | id instalacji | 60 min | pole `history` (24 pełne godziny); pobieranie co 6 h, ok. 68 z 100 zapytań dziennie; po restarcie aplikacji pobieranie jest pomijane, jeśli dane są świeższe niż 6 h |
-| PurpleAir | `sensor_index` | ok. 2 min | `pm2.5_atm`, `pm10.0_atm`; czas z Unix timestamp |
+| LookO2 | `Device` (adres MAC) | nieznane, przyjęte 1 min | bieżące `PM25`, `PM10` (nie `AveragePM*`); pobieranie co 30 min, także po restarcie; czujniki w promieniu `app.area.radius-km` od centrum; pomijane odczyty starsze niż 1 h |
 
 Błędne odczyty nie są usuwane, tylko oznaczane `valid = false`, żeby dało się policzyć, ile danych odrzuciła walidacja. Przyczyna trafia do `invalid_reason`:
 
 - `OUT_OF_RANGE`: PM2,5 lub PM10 poniżej 0 albo powyżej 1000 µg/m³ (fizycznie niemożliwe w powietrzu zewnętrznym).
-- `STUCK_VALUE`: czujnik podał te same PM2,5 i PM10 tyle razy z rzędu, ile wynosi `app.validation.stuck-count` (domyślnie 6, np. 30 min dla Sensor.community). Łapie ciągi zer i zawieszone czujniki.
+- `STUCK_VALUE`: czujnik podał te same PM2,5 i PM10 tyle razy z rzędu, ile wynosi `app.validation.stuck-count` (domyślnie 6, np. 30 min dla Sensor.community, 3 h dla LookO2). Łapie ciągi zer i zawieszone czujniki. LookO2 podaje liczby całkowite, więc przy czystym powietrzu powtórzenia są bardziej prawdopodobne; do sprawdzenia na zebranych danych.
 
 Walidacja działa przy zapisie: odczyty z jednej partii są sortowane po czasie i porównywane z poprzednimi pomiarami czujnika z bazy. Celowo nie odrzucamy PM2,5 > PM10, bo tanie czujniki często tak raportują. Odczyty zaniżone względem sąsiadów (np. stale 1 µg/m³ przy tle 15) nie są tu łapane; to zadanie porównania z otoczeniem w module detekcji.
 
@@ -182,7 +183,7 @@ Strategia: najpierw działający szkielet od źródeł do mapy, potem udoskonala
 - Jak liczyć tło miejskie: mediana czujników w promieniu kilku km czy najbliższa stacja GIOŚ (propozycja, nie decyzja).
 - Długość okna, próg Z-score, metryki oceny detekcji (np. precision/recall na anomaliach syntetycznych).
 - Cele liczbowe wydajności (czas ładowania mapy, czas zapytań).
-- PurpleAir: we Wrocławiu praktycznie brak czujników (1, wewnętrzny). Zostawić jako czwarte źródło, rozszerzyć obszar czy zrezygnować?
+- LookO2 zamiast PurpleAir: zmiana względem prezentacji, do potwierdzenia z promotorem. Czekamy na własny token; okres uśredniania odczytów nieznany (zapytać LookO2).
 - Airly: 100 zapytań dziennie przy 16 instalacjach, jak często pobierać dane.
 - GIOŚ: tylko kilka stanowisk PM z bieżącymi danymi, co wpływa na pomysł „tło = najbliższa stacja GIOŚ”.
 - Zakres pracy do uzgodnienia z promotorem.

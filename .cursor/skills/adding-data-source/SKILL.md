@@ -1,6 +1,6 @@
 ---
 name: adding-data-source
-description: Dodawanie lub zmiana adaptera źródła danych o jakości powietrza (GIOŚ, Airly, PurpleAir, Sensor.community lub nowe API) w backendzie Spring Boot. Używaj, gdy użytkownik prosi o nowy adapter, podłączenie API, pobieranie danych z nowego źródła albo poprawki w istniejącym adapterze.
+description: Dodawanie lub zmiana adaptera źródła danych o jakości powietrza (GIOŚ, Airly, LookO2, Sensor.community lub nowe API) w backendzie Spring Boot. Używaj, gdy użytkownik prosi o nowy adapter, podłączenie API, pobieranie danych z nowego źródła albo poprawki w istniejącym adapterze.
 ---
 
 # Dodawanie źródła danych
@@ -23,7 +23,7 @@ Przepływ: API → `<Nazwa>Adapter` (zwraca `List<SourceReading>`) → `Measurem
 
 ### 1. Sprawdzenie API
 
-Uruchom `scripts/check_<źródło>.py` (instrukcja w `README.md`). Surowa odpowiedź trafia do `scripts/data/`. Airly ma limit 100 zapytań dziennie, PurpleAir liczy punkty: nie odpytuj ich w pętli.
+Uruchom `scripts/check_<źródło>.py` (instrukcja w `README.md`). Surowa odpowiedź trafia do `scripts/data/`. Airly ma limit 100 zapytań dziennie, LookO2 blokuje token przy zapytaniach częstszych niż co 30 min: nie odpytuj ich w pętli.
 
 ### 2. Adapter
 
@@ -79,7 +79,7 @@ Uzupełnij tabelę „Mapowanie źródeł” w `docs/specyfikacja.md`. Komunikat
 | Sensor.community | 5 min | gotowe; P1 = PM10, P2 = PM2,5, liczby jako stringi, czas UTC bez strefy |
 | GIOŚ | 60 min | stacja = jeden czujnik; PM10 i PM2,5 to osobne stanowiska, wybieraj po dokładnym kodzie `PM10` / `PM2.5` i łącz po godzinie; stanowiska manualne zwracają HTTP 400 (pomiń); najnowsze godziny często mają `Wartość: null`; czas lokalny `Europe/Warsaw` → UTC; pola po polsku |
 | Airly | 60 min | gotowe; nagłówek `apikey`; limit 100/dzień, jedno pobranie = 1 + liczba instalacji zapytań, harmonogram co 6 h i pomijanie po restarcie (`fetchedWithin`); używamy `history` (24 pełne godziny), nie `current` (średnia krocząca); nazwy `PM25`, `PM10` |
-| PurpleAir | ok. 2 min | nagłówek `X-API-Key`; odpowiedź to `fields` + `data` (wiersze jako listy); pola `pm2.5_atm`, `pm10.0_atm`, `location_type` (0 = outdoor); czas Unix; we Wrocławiu 1 czujnik wewnętrzny |
+| LookO2 | nieznane (1 min) | gotowe; `GetAll` zwraca całą Polskę, filtr po odległości od centrum w adapterze; token `LOOKO2_TOKEN`, bez niego `XXX` z dokumentacji; max raz na 30 min, także po restarcie (`fetchedWithin`); większość czujników martwa, pomijamy odczyty starsze niż 1 h; wszystko jako stringi, czas Unix; `Indoor` zawsze `"0"` |
 
 ## Pułapki
 

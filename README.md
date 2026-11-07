@@ -6,7 +6,7 @@ Engineering thesis · Anton Shkumat · supervisor: dr Michał Piórek
 
 ## What the system does
 
-- Periodically fetches PM2.5 and PM10 measurements from GIOŚ, Sensor.community, Airly and PurpleAir.
+- Periodically fetches PM2.5 and PM10 measurements from GIOŚ, Sensor.community, Airly and LookO2.
 - Normalizes them into a single data model and stores them as time series.
 - Shows sensors on a map and measurement history on charts.
 - Detects local anomalies: a sudden rise at a single sensor that is not visible in the city background.
@@ -71,7 +71,7 @@ cd scripts
 ..\.venv\Scripts\python check_sensor_community.py
 ```
 
-Other scripts: `check_gios.py`, `check_airly.py`, `check_purpleair.py`. Raw responses are saved to `scripts/data/`.
+Other scripts: `check_gios.py`, `check_airly.py`, `check_looko2.py`. Raw responses are saved to `scripts/data/`.
 
 ## Documentation
 
@@ -80,6 +80,6 @@ Other scripts: `check_gios.py`, `check_airly.py`, `check_purpleair.py`. Raw resp
 
 ## Status
 
-Working: data fetching from Sensor.community and Airly, storage in TimescaleDB, map with sensors and 24-hour charts.
+Working: data fetching from Sensor.community, Airly and LookO2, validation of readings, storage in TimescaleDB, map with sensors and 24-hour charts.
 
-Next: GIOŚ and PurpleAir adapters, data validation, anomaly detection.
+Next: GIOŚ adapter, anomaly detection.

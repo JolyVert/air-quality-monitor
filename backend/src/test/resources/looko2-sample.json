@@ -1,0 +1,27 @@
+[
+  {
+    "Device": "6001945521DF", "PM1": "37", "PM25": "47", "PM10": "58", "Epoch": "1794044012",
+    "Lat": "51.1923", "Lon": "16.9784", "IJP": "1", "Name": "Wroclaw_Swiniary", "Indoor": "0",
+    "AveragePM25": "23", "AveragePM10": "27"
+  },
+  {
+    "Device": "5CCF7F1A5393", "PM1": "0", "PM25": "0", "PM10": "0", "Epoch": "1527688593",
+    "Lat": "51.123", "Lon": "17.0854", "IJP": "0", "Name": "WROCLAW_ZAL", "Indoor": "0",
+    "AveragePM25": "0", "AveragePM10": "0"
+  },
+  {
+    "Device": "60019400AB79", "PM1": "10", "PM25": "12", "PM10": "14", "Epoch": "1794044011",
+    "Lat": "50.0744", "Lon": "19.9654", "IJP": "0", "Name": "KRAKOW_OLSZA", "Indoor": "0",
+    "AveragePM25": "11", "AveragePM10": "12"
+  },
+  {
+    "Device": "4C7525DDCA18", "PM1": "30", "PM25": "", "PM10": "53", "Epoch": "1794044013",
+    "Lat": "51.0901", "Lon": "17.0012", "IJP": "3", "Name": "Lawendowa", "Indoor": "0",
+    "AveragePM25": "39", "AveragePM10": "53"
+  },
+  {
+    "Device": "4C7525922634", "PM1": "5", "PM25": "7", "PM10": "8", "Epoch": "1794043920",
+    "Lat": "51.1052", "Lon": "17.0388", "IJP": "0", "Name": "LOOKO_MB", "Indoor": "1",
+    "AveragePM25": "7", "AveragePM10": "7"
+  }
+]

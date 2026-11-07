@@ -29,7 +29,7 @@ export const SOURCE_LABELS = {
   GIOS: 'GIOŚ',
   SENSOR_COMMUNITY: 'Sensor.community',
   AIRLY: 'Airly',
-  PURPLEAIR: 'PurpleAir',
+  LOOKO2: 'LookO2',
 }
 
 export function formatValue(value) {

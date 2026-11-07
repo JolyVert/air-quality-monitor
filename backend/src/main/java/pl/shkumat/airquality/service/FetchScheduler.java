@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 import pl.shkumat.airquality.source.SourceAdapter;
 import pl.shkumat.airquality.source.SourceReading;
 import pl.shkumat.airquality.source.airly.AirlyAdapter;
+import pl.shkumat.airquality.source.looko2.LookO2Adapter;
 import pl.shkumat.airquality.source.sensorcommunity.SensorCommunityAdapter;
 
 import java.time.Duration;
@@ -26,10 +27,14 @@ public class FetchScheduler {
 
     private final SensorCommunityAdapter sensorCommunityAdapter;
     private final AirlyAdapter airlyAdapter;
+    private final LookO2Adapter lookO2Adapter;
     private final MeasurementImportService importService;
 
     @Value("${app.airly.fetch-interval}")
     private Duration airlyInterval;
+
+    @Value("${app.looko2.fetch-interval}")
+    private Duration lookO2Interval;
 
     @Scheduled(initialDelayString = "PT10S", fixedDelayString = "${app.sensor-community.fetch-interval}")
     public void fetchSensorCommunity() {
@@ -44,6 +49,16 @@ public class FetchScheduler {
             return;
         }
         fetch(airlyAdapter);
+    }
+
+    @Scheduled(initialDelayString = "PT20S", fixedDelayString = "${app.looko2.fetch-interval}")
+    public void fetchLookO2() {
+        // the token is blocked after calls more often than every 30 minutes, also after a restart
+        if (importService.fetchedWithin(lookO2Adapter.getSource(), lookO2Interval)) {
+            log.info("LOOKO2: fetched less than {} ago, skipping", lookO2Interval);
+            return;
+        }
+        fetch(lookO2Adapter);
     }
 
     private void fetch(SourceAdapter adapter) {

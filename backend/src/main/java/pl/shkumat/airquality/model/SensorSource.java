@@ -4,5 +4,5 @@ public enum SensorSource {
     GIOS,
     SENSOR_COMMUNITY,
     AIRLY,
-    PURPLEAIR
+    LOOKO2
 }
