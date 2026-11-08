@@ -109,6 +109,7 @@ Schemat tworzą migracje Flyway (`backend/src/main/resources/db/migration`). Cza
 
 - **`sensor`**: czujnik z dowolnego źródła. Pola: `source` (`GIOS`, `SENSOR_COMMUNITY`, `AIRLY`, `LOOKO2`), `external_id` (id w API źródła), `name`, `latitude`, `longitude`, `sensor_type`, `indoor`, `last_seen_at`. Para `source` + `external_id` jest unikalna.
 - **`measurement`**: hypertable TimescaleDB po `measured_at`. Pola: `sensor_id`, `measured_at`, `pm25`, `pm10` (mogą być puste), `averaging_minutes`, `valid`, `invalid_reason`, `fetched_at`. Klucz główny (`sensor_id`, `measured_at`), więc ponowne pobranie tego samego pomiaru nie tworzy duplikatu.
+- **`anomaly`**: wykryta anomalia lokalna. Pola: `sensor_id`, `detected_at` (czas pomiaru), `pm25`, `z_score`, `background_pm25`. Klucz (`sensor_id`, `detected_at`).
 
 Mapowanie źródeł:
 
@@ -131,7 +132,7 @@ Walidacja działa przy zapisie: odczyty z jednej partii są sortowane po czasie 
 - `GET /api/sensors`: wszystkie czujniki z ostatnim pomiarem (z ostatnich 24 h; starszy pomiar = brak aktualnych danych).
 - `GET /api/sensors/{id}/measurements?hours=24`: historia pomiarów czujnika (maks. 7 dni).
 
-Frontend (React + Vite, `frontend/`): mapa Wrocławia z czujnikami kolorowanymi według PM2,5 w skali indeksu GIOŚ (0–13, 13–35, 35–55, 55–75, 75–110, > 110 µg/m³), filtr źródeł, legenda, panel czujnika z wykresem PM2,5 i PM10 z ostatnich 24 h. Czujniki wewnętrzne nie są pokazywane. Dane odświeżane co 5 minut. API zwraca pole `valid`; czujnik z błędnym ostatnim odczytem jest szary na mapie, a błędne punkty na wykresie są pomijane (przerwa w linii).
+Frontend (React + Vite, `frontend/`): mapa Wrocławia z czujnikami kolorowanymi według PM2,5 w skali indeksu GIOŚ (0–13, 13–35, 35–55, 55–75, 75–110, > 110 µg/m³), filtr źródeł, legenda, panel czujnika z wykresem PM2,5 i PM10 z ostatnich 24 h. Czujniki wewnętrzne nie są pokazywane. Dane odświeżane co 5 minut. API zwraca pola `valid`, `anomaly` i `zScore`; czujnik z błędnym ostatnim odczytem jest szary na mapie, a błędne punkty na wykresie są pomijane (przerwa w linii). Anomalia lokalna ma czerwoną obwódkę na mapie.
 
 ## 7. Algorytm detekcji lokalnych anomalii
 
@@ -140,8 +141,12 @@ Idea: dla każdego czujnika sprawdzamy, czy pokazuje teraz coś nietypowego w po
 1. **Walidacja.** Odrzucenie odczytów na pewno błędnych (ciągi zer, wartości niemożliwe fizycznie); reguły w sekcji „Model danych”. Detekcja korzysta tylko z odczytów `valid = true`.
 2. **Norma czujnika.** W oknie czasowym (np. kilka ostatnich godzin) liczymy średnią ruchomą μ i odchylenie standardowe σ. Każdy czujnik ma własną normę.
 3. **Z-score.** Dla nowego pomiaru x: `z = (x − μ) / σ`. Przykład: μ = 20, σ = 3, x = 35 → z = 5.
-4. **Porównanie z otoczeniem.** Wysoki Z-score + spokojni sąsiedzi i tło miejskie → **anomalia lokalna**. Wzrost wszędzie → ogólny wzrost w mieście (smog), nie anomalia lokalna.
-5. **Wynik.** Anomalia lokalna jest oznaczana na mapie.
+4. **Porównanie z otoczeniem.** Tło = mediana PM2,5 sąsiadów w promieniu (domyślnie 3 km, min. 3 czujniki; jeśli za mało, ten sam krąg 10 km co obszar testowy). Wysoki Z-score **i** wartość wyraźnie wyższa od tła → **anomalia lokalna**. Wzrost wszędzie → ogólny wzrost w mieście (smog), nie anomalia lokalna.
+5. **Wynik.** Anomalia lokalna jest zapisywana w tabeli `anomaly` i oznaczana na mapie (czerwona obwódka).
+
+Na razie wykrywamy anomalie PM2,5 (to samo, co koloruje mapę). PM10 tym samym algorytmem, do dodania przy strojeniu.
+
+Parametry startowe w `application.properties` (do zmiany bez ruszania kodu): okno 12 h, min. 6 próbek, próg Z-score 3, promień sąsiadów 3 km, min. 3 sąsiadów, czujnik ≥ 1,5× mediana tła. Detekcja co 5 min, tylko odczyty `valid = true`, czujniki wewnętrzne pomijane.
 
 Dlaczego nie wystarczy próg bezwzględny (np. norma 50 µg/m³ dla PM10):
 
@@ -154,7 +159,7 @@ Dlaczego nie wystarczy próg bezwzględny (np. norma 50 µg/m³ dla PM10):
 
 Próg mówi o zagrożeniu dla zdrowia, moduł detekcji o tym, gdzie i kiedy dzieje się coś nietypowego. Czujnik stale pokazujący zero nie zostanie wykryty żadną z tych metod; to zadanie walidacji.
 
-Parametry do ustalenia eksperymentalnie: długość okna, próg Z-score (np. 3), sposób liczenia tła. Ocena: anomalie syntetyczne wstrzyknięte w dane oraz znane incydenty.
+Ocena później, na zebranych danych: anomalie syntetyczne wstrzyknięte w szeregi oraz znane incydenty. Wtedy stroimy okno, próg Z-score i mnożnik tła.
 
 ## 8. Plan realizacji
 
@@ -162,7 +167,7 @@ Parametry do ustalenia eksperymentalnie: długość okna, próg Z-score (np. 3),
 |---|---|
 | Analiza i projekt | w trakcie |
 | Pobieranie danych i baza danych | w trakcie |
-| Moduł detekcji anomalii | zaplanowane |
+| Moduł detekcji anomalii | w trakcie (szkielet z parametrami do strojenia) |
 | Frontend (mapa, dashboard) | w trakcie (podstawowa mapa i wykresy działają) |
 | Testy i walidacja | zaplanowane |
 | Praca pisemna | zaplanowane |
@@ -180,8 +185,8 @@ Strategia: najpierw działający szkielet od źródeł do mapy, potem udoskonala
 
 ## 10. Otwarte kwestie
 
-- Jak liczyć tło miejskie: mediana czujników w promieniu kilku km czy najbliższa stacja GIOŚ (propozycja, nie decyzja).
-- Długość okna, próg Z-score, metryki oceny detekcji (np. precision/recall na anomaliach syntetycznych).
+- Strojenie detekcji na zebranych danych: okno, próg Z-score, mnożnik tła, metryki (np. precision/recall na anomaliach syntetycznych). Tło jest medianą sąsiadów (nie stacją GIOŚ), bo GIOŚ ma jedno stanowisko PM na bieżąco.
+- Czy dodać detekcję PM10 tym samym algorytmem.
 - Cele liczbowe wydajności (czas ładowania mapy, czas zapytań).
 - LookO2 zamiast PurpleAir: zmiana względem prezentacji, do potwierdzenia z promotorem. Czekamy na własny token; okres uśredniania odczytów nieznany (zapytać LookO2).
 - Airly: 100 zapytań dziennie przy 16 instalacjach, jak często pobierać dane.

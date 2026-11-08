@@ -7,6 +7,7 @@ import java.time.Instant;
 /**
  * Sensor for the map, with its latest measurement (null values if there is no recent one).
  * valid = false means validation rejected the latest measurement.
+ * anomaly = true means detection flagged the latest measurement as a local anomaly.
  */
 public record SensorDto(
         Long id,
@@ -19,6 +20,8 @@ public record SensorDto(
         Instant measuredAt,
         Double pm25,
         Double pm10,
-        boolean valid
+        boolean valid,
+        boolean anomaly,
+        Double zScore
 ) {
 }

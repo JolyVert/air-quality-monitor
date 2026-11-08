@@ -1,4 +1,4 @@
-import { NO_DATA_COLOR, PM25_LEVELS, SOURCE_LABELS } from '../airQuality.js'
+import { ANOMALY_COLOR, NO_DATA_COLOR, PM25_LEVELS, SOURCE_LABELS } from '../airQuality.js'
 
 function Sidebar({ sensors, enabledSources, onToggleSource }) {
   const countBySource = {}
@@ -35,6 +35,11 @@ function Sidebar({ sensors, enabledSources, onToggleSource }) {
       <div className="legend-row">
         <span className="dot" style={{ background: NO_DATA_COLOR }} />
         Brak danych lub błędny odczyt
+      </div>
+      <div className="legend-row">
+        <span className="dot anomaly" style={{ borderColor: ANOMALY_COLOR }} />
+        Anomalia lokalna
+        <span className="muted"> ({sensors.filter((sensor) => sensor.anomaly).length})</span>
       </div>
     </div>
   )

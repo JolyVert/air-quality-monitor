@@ -46,6 +46,7 @@ class SensorServiceTests {
         assertThat(dto.measuredAt()).isEqualTo(now.minus(Duration.ofMinutes(5)));
         assertThat(dto.pm25()).isEqualTo(7.0);
         assertThat(dto.pm10()).isEqualTo(9.0);
+        assertThat(dto.anomaly()).isFalse();
     }
 
     @Test

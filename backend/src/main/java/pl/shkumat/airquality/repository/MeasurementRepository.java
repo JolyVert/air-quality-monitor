@@ -15,6 +15,8 @@ public interface MeasurementRepository extends JpaRepository<Measurement, Measur
 
     List<Measurement> findBySensorIdAndMeasuredAtBetweenOrderByMeasuredAt(Long sensorId, Instant from, Instant to);
 
+    List<Measurement> findByMeasuredAtGreaterThanEqual(Instant from);
+
     // the last few measurements before the given time, newest first (used by validation)
     List<Measurement> findBySensorIdAndMeasuredAtBeforeOrderByMeasuredAtDesc(Long sensorId, Instant before, Limit limit);
 

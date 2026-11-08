@@ -25,12 +25,12 @@ W skrócie: aplikacja webowa, która pobiera pomiary PM2,5 i PM10 z czterech źr
 - Baza: PostgreSQL + TimescaleDB (szeregi czasowe), schemat przez migracje Flyway.
 - Frontend: React + Vite (JavaScript, bez TypeScriptu) + Leaflet.js (`react-leaflet`, mapa) + Chart.js (`react-chartjs-2`, wykresy). Interfejs po polsku. W trybie deweloperskim Vite przekierowuje `/api` na backend (port 8080), bez CORS.
 - Uruchamianie: Docker (docker compose). Python do skryptów testowych i walidacji danych.
-- Detekcja anomalii: średnia ruchoma i odchylenie standardowe w oknie czasowym → Z-score czujnika → porównanie z sąsiadami i tłem miejskim. Anomalia lokalna = wysoki Z-score przy braku wzrostu w tle. Progi i długość okna dobierane eksperymentalnie.
+- Detekcja anomalii: Z-score PM2,5 w oknie vs własna historia, potem porównanie z medianą sąsiadów. Anomalia lokalna = wysoki Z-score **i** wartość wyraźnie wyższa od tła. Parametry w `application.properties` (`app.detection.*`), dobierane eksperymentalnie.
 
 ## Jeszcze nie ustalone
 
-- Sposób liczenia „tła miejskiego” (np. mediana czujników w promieniu kilku km albo najbliższa stacja GIOŚ).
-- Długość okna, próg Z-score, metryki oceny detekcji.
+- Docelowe wartości okna, progu Z-score i mnożnika tła (są wartości startowe).
+- Metryki oceny detekcji i detekcja PM10.
 - Pełna lista w `docs/specyfikacja.md`, sekcja „Otwarte kwestie”.
 
 ## Środowisko (Windows 10)

@@ -38,6 +38,11 @@ function SensorPanel({ sensor, onClose }) {
       <p>
         {level && <span className="badge" style={{ background: level.color }}>{level.label}</span>}
         {!sensor.valid && <span className="badge invalid">Błędny odczyt</span>}
+        {sensor.anomaly && (
+          <span className="badge anomaly">
+            Anomalia lokalna{sensor.zScore != null ? ` (z = ${sensor.zScore.toFixed(1)})` : ''}
+          </span>
+        )}
         <span className="muted"> pomiar: {formatTime(sensor.measuredAt)}</span>
       </p>
 

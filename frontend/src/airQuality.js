@@ -9,6 +9,7 @@ export const PM25_LEVELS = [
 ]
 
 export const NO_DATA_COLOR = '#9e9e9e'
+export const ANOMALY_COLOR = '#c62828'
 
 export function levelForPm25(pm25) {
   if (pm25 === null || pm25 === undefined) {

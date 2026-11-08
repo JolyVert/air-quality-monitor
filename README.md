@@ -80,6 +80,6 @@ Other scripts: `check_gios.py`, `check_airly.py`, `check_looko2.py`. Raw respons
 
 ## Status
 
-Working: data fetching from all four sources (GIOŚ, Sensor.community, Airly, LookO2), validation of readings, storage in TimescaleDB, map with sensors and 24-hour charts.
+Working: data fetching from all four sources, validation of readings, storage in TimescaleDB, map with sensors and 24-hour charts, local anomaly detection (PM2.5 Z-score vs neighbours).
 
-Next: anomaly detection.
+Next: tune detection parameters on collected data, optionally add PM10 detection.

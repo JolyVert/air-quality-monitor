@@ -1,5 +1,5 @@
 import { CircleMarker, MapContainer, TileLayer, Tooltip } from 'react-leaflet'
-import { colorForSensor, formatValue, SOURCE_LABELS } from '../airQuality.js'
+import { ANOMALY_COLOR, colorForSensor, formatValue, SOURCE_LABELS } from '../airQuality.js'
 
 const WROCLAW_CENTER = [51.11, 17.03]
 
@@ -16,8 +16,8 @@ function SensorMap({ sensors, selectedId, onSelect }) {
           center={[sensor.latitude, sensor.longitude]}
           radius={sensor.id === selectedId ? 11 : 8}
           pathOptions={{
-            color: sensor.id === selectedId ? '#000' : '#fff',
-            weight: 2,
+            color: sensor.anomaly ? ANOMALY_COLOR : sensor.id === selectedId ? '#000' : '#fff',
+            weight: sensor.anomaly || sensor.id === selectedId ? 3 : 2,
             fillColor: colorForSensor(sensor),
             fillOpacity: 0.9,
           }}
@@ -28,6 +28,7 @@ function SensorMap({ sensors, selectedId, onSelect }) {
             <br />
             PM2,5: {formatValue(sensor.pm25)} µg/m³
             {!sensor.valid && ' (błędny odczyt)'}
+            {sensor.anomaly && ' (anomalia lokalna)'}
           </Tooltip>
         </CircleMarker>
       ))}

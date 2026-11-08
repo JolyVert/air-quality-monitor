@@ -133,6 +133,17 @@ main {
   color: #fff;
 }
 
+.badge.anomaly {
+  background: #c62828;
+  color: #fff;
+  margin-left: 6px;
+}
+
+.dot.anomaly {
+  background: transparent;
+  border: 3px solid;
+}
+
 .chart {
   height: 220px;
 }

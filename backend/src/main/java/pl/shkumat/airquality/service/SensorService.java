@@ -6,8 +6,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import pl.shkumat.airquality.dto.MeasurementDto;
 import pl.shkumat.airquality.dto.SensorDto;
+import pl.shkumat.airquality.model.Anomaly;
 import pl.shkumat.airquality.model.Measurement;
 import pl.shkumat.airquality.model.Sensor;
+import pl.shkumat.airquality.repository.AnomalyRepository;
 import pl.shkumat.airquality.repository.MeasurementRepository;
 import pl.shkumat.airquality.repository.SensorRepository;
 
@@ -26,15 +28,24 @@ public class SensorService {
 
     private final SensorRepository sensorRepository;
     private final MeasurementRepository measurementRepository;
+    private final AnomalyRepository anomalyRepository;
 
     public List<SensorDto> getSensors() {
+        Instant since = Instant.now().minus(LATEST_MAX_AGE);
         Map<Long, Measurement> latest = new HashMap<>();
-        for (Measurement m : measurementRepository.findLatestPerSensorSince(Instant.now().minus(LATEST_MAX_AGE))) {
+        for (Measurement m : measurementRepository.findLatestPerSensorSince(since)) {
             latest.put(m.getSensorId(), m);
+        }
+        Map<Long, Anomaly> anomalies = new HashMap<>();
+        for (Anomaly anomaly : anomalyRepository.findByDetectedAtGreaterThanEqual(since)) {
+            Measurement current = latest.get(anomaly.getSensorId());
+            if (current != null && current.getMeasuredAt().equals(anomaly.getDetectedAt())) {
+                anomalies.put(anomaly.getSensorId(), anomaly);
+            }
         }
 
         return sensorRepository.findAll().stream()
-                .map(sensor -> toDto(sensor, latest.get(sensor.getId())))
+                .map(sensor -> toDto(sensor, latest.get(sensor.getId()), anomalies.get(sensor.getId())))
                 .toList();
     }
 
@@ -49,7 +60,9 @@ public class SensorService {
                 .toList();
     }
 
-    private SensorDto toDto(Sensor sensor, Measurement latest) {
+    private SensorDto toDto(Sensor sensor, Measurement latest, Anomaly anomaly) {
+        boolean currentAnomaly = anomaly != null && latest != null
+                && anomaly.getDetectedAt().equals(latest.getMeasuredAt());
         return new SensorDto(
                 sensor.getId(),
                 sensor.getSource(),
@@ -61,7 +74,9 @@ public class SensorService {
                 latest != null ? latest.getMeasuredAt() : null,
                 latest != null ? latest.getPm25() : null,
                 latest != null ? latest.getPm10() : null,
-                latest == null || latest.isValid()
+                latest == null || latest.isValid(),
+                currentAnomaly,
+                currentAnomaly ? anomaly.getZScore() : null
         );
     }
 }
